@@ -48,7 +48,7 @@ rm -f files/etc/uci-defaults/*
 echo "echo -e 'password\npassword' | passwd root" >files/etc/uci-defaults/01-passwd
 #echo "uci set network.lan.ipaddr='10.10.10.1'" >files/etc/uci-defaults/02-network
 #echo "uci commit network" >>files/etc/uci-defaults/02-network
-echo "uci set dropbear.@dropbear[-1].Interface='lan'" >files/etc/uci-defaults/03-dropbear
+echo "uci set dropbear.@dropbear[0].Interface='lan'" >files/etc/uci-defaults/03-dropbear
 echo "uci commit dropbear" >>files/etc/uci-defaults/03-dropbear
 echo "uci set uhttpd.main.redirect_https='1'" >files/etc/uci-defaults/04-uhttpd
 echo "uci commit uhttpd" >>files/etc/uci-defaults/04-uhttpd
