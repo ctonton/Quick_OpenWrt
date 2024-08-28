@@ -1,2 +1,17 @@
 # Quick_OpenWrt
-Download and run this script on a modern Debian or Ubuntu OS to quickly create custom OpenWrt builds.
+Download, edit, and run this script on a modern Debian or Ubuntu OS to quickly and easily create custom OpenWrt builds.
+
+Download
+```shell
+wget "https://github.com/ctonton/Quick_OpenWrt/raw/main/build.sh" && chmod +x build.sh
+```
+
+Edit
+```shell
+nano build.sh
+```
+
+Run
+```shell
+bash build.sh
+```
