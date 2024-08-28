@@ -1,5 +1,13 @@
 #!/bin/bash
 
+## check for and install dependencies
+dep="build-essential libncurses-dev zlib1g-dev gawk git gettext libssl-dev xsltproc rsync wget unzip python3 python3-distutils curl"
+for p in $dep; do dpkg -l "$p" 2>/dev/null | grep -q '^ii' || i=1; done
+if [[ $i -eq 1 ]]; then
+  sudo apt update
+  sudo apt install -y $dep || exit $?
+fi
+
 ## address of imagebuilder package or comment out to chose later
 #url="https://downloads.openwrt.org/releases/23.05.4/targets/ramips/mt7621/openwrt-imagebuilder-23.05.4-ramips-mt7621.Linux-x86_64.tar.xz"
 
@@ -9,13 +17,8 @@
 ## extra packages to install
 opk="luci-ssl luci-app-opkg nano"
 
-## check for and install dependencies
-dep="build-essential libncurses-dev zlib1g-dev gawk git gettext libssl-dev xsltproc rsync wget unzip python3 python3-distutils curl"
-for p in $dep; do dpkg -l "$p" 2>/dev/null | grep -q '^ii' || i=1; done
-if [[ $i -eq 1 ]]; then
-  sudo apt update
-  sudo apt install -y $dep || exit $?
-fi
+## set password or comment out to choose later
+#pas=password
 
 ## download and extract imagebuilder package
 if [[ -z $url ]]; then
@@ -42,18 +45,27 @@ if [[ ! -d "$d" ]]; then
 fi
 cd "$d"
 
-## set uci defaults
+## set default password
 mkdir -p files/etc/uci-defaults
 rm -f files/etc/uci-defaults/*
-echo "echo -e 'password\npassword' | passwd root" >files/etc/uci-defaults/01-passwd
-#echo "uci set network.lan.ipaddr='10.10.10.1'" >files/etc/uci-defaults/02-network
-#echo "uci commit network" >>files/etc/uci-defaults/02-network
-echo "uci set dropbear.@dropbear[0].Interface='lan'" >files/etc/uci-defaults/03-dropbear
-echo "uci commit dropbear" >>files/etc/uci-defaults/03-dropbear
-echo "uci set uhttpd.main.redirect_https='1'" >files/etc/uci-defaults/04-uhttpd
-echo "uci commit uhttpd" >>files/etc/uci-defaults/04-uhttpd
-echo "uci set wireless.radio0.disabled='0'" >files/etc/uci-defaults/05-wireless
-echo "uci commit wireless" >>files/etc/uci-defaults/05-wireless
+if [[ -z $pas ]]; then
+  read -p "Enter a password: " pas
+fi
+cat >files/etc/uci-defaults/01-passwd <<EOF
+passwd root <<EOT
+$p
+$p
+EOT
+EOF
+
+## set uci defaults
+cat >files/etc/uci-defaults/02-default <<EOF
+uci set network.lan.ipaddr='192.168.1.1'
+uci set dropbear.@dropbear[0].Interface='lan'
+uci set uhttpd.main.redirect_https='1'
+uci set wireless.radio0.disabled='0'
+uci commit
+EOF
 
 ## build images
 if [[ -z $mod ]]; then
