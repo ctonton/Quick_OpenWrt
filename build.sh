@@ -49,7 +49,7 @@ cd "$d"
 mkdir -p files/etc/uci-defaults
 rm -f files/etc/uci-defaults/*
 if [[ -z $pas ]]; then
-  read -p "Enter a password: " pas
+  read -p "Enter a login password: " pas
 fi
 cat >files/etc/uci-defaults/01-passwd <<EOF
 passwd root <<EOT
