@@ -53,12 +53,6 @@ echo "uci commit uhttpd" >>files/etc/uci-defaults/30-uhttpd
 echo "uci set wireless.radio0.disabled='0'" >files/etc/uci-defaults/40-wireless
 echo "uci commit wireless" >>files/etc/uci-defaults/40-wireless
 
-## set firewall rules
-mkdir -p files/usr/share/nftables.d/chain-pre/mangle_postrouting
-rm -f files/usr/share/nftables.d/chain-pre/mangle_postrouting*
-echo "ip ttl set 65" >files/usr/share/nftables.d/chain-pre/mangle_postrouting/01-set-ttl.nft
-echo "ip6 hoplimit set 65" >files/usr/share/nftables.d/chain-pre/mangle_postrouting/01-set-ttl.nft
-
 ## build images
 if [[ -z $mod ]]; then
   if [[ ! -f .profiles.mk ]]; then make info &>/dev/null; fi
