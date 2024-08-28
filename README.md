@@ -16,4 +16,4 @@ Run
 bash build.sh
 ```
 
-For more information about using th Image Builder, visit https://openwrt.org/docs/guide-user/additional-software/imagebuilder
+For more information about using the Image Builder, visit https://openwrt.org/docs/guide-user/additional-software/imagebuilder
