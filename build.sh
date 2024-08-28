@@ -10,11 +10,11 @@
 opk="luci-ssl luci-app-opkg nano"
 
 ## check for and install dependencies
-dep=(build-essential libncurses-dev zlib1g-dev gawk git gettext libssl-dev xsltproc rsync wget unzip python3 python3-distutils curl)
-for p in ${dep[@]}; do dpkg -l "$p" 2>/dev/null | grep -q '^ii' || i=1; done
+dep="build-essential libncurses-dev zlib1g-dev gawk git gettext libssl-dev xsltproc rsync wget unzip python3 python3-distutils curl"
+for p in $dep; do dpkg -l "$p" 2>/dev/null | grep -q '^ii' || i=1; done
 if [[ $i -eq 1 ]]; then
   sudo apt update
-  sudo apt install -y ${dep[@]} || exit $?
+  sudo apt install -y $dep || exit $?
 fi
 
 ## download and extract imagebuilder package
@@ -39,11 +39,11 @@ fi
 d="${f%.tar.xz}"
 if [[ ! -d "$d" ]]; then
   tar -J -x -f "$f"
-  mkdir -p "$d"/files/etc/uci-defaults
 fi
 cd "$d"
 
 ## set uci defaults
+mkdir -p files/etc/uci-defaults
 rm -f files/etc/uci-defaults/*
 echo "echo -e 'password\npassword' | passwd root" >files/etc/uci-defaults/10-passwd
 echo "uci set dropbear.@dropbear[-1].Interface='lan'" >files/etc/uci-defaults/20-dropbear
@@ -52,6 +52,12 @@ echo "uci set uhttpd.main.redirect_https='1'" >files/etc/uci-defaults/30-uhttpd
 echo "uci commit uhttpd" >>files/etc/uci-defaults/30-uhttpd
 echo "uci set wireless.radio0.disabled='0'" >files/etc/uci-defaults/40-wireless
 echo "uci commit wireless" >>files/etc/uci-defaults/40-wireless
+
+## set firewall rules
+mkdir -p files/usr/share/nftables.d/chain-pre/mangle_postrouting
+rm -f files/usr/share/nftables.d/chain-pre/mangle_postrouting*
+echo "ip ttl set 65" >files/usr/share/nftables.d/chain-pre/mangle_postrouting/01-set-ttl.nft
+echo "ip6 hoplimit set 65" >files/usr/share/nftables.d/chain-pre/mangle_postrouting/01-set-ttl.nft
 
 ## build images
 if [[ -z $mod ]]; then
