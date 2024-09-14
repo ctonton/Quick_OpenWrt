@@ -58,7 +58,7 @@ EOF
 
 ## build images
 if [[ -z $mod ]]; then
-  if [[ ! -f .profiles.mk ]]; then make info &>/dev/null; fi
+  [[ -f .profiles.mk ]] || make info &>/dev/null
   echo
   PS3="Select router make: "
   select b in $(cat .profiles.mk | grep "DEVICE_.*NAME" | cut -d '_' -f2 | sort -u); do break; done
