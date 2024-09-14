@@ -67,6 +67,7 @@ if [[ -z $mod ]]; then
   select r in $(cat .profiles.mk | grep "DEVICE_$b.*NAME" | cut -d '_' -f3); do break; done
   mod=$b"_"$r
 fi
+rm -rf bin
 make image PROFILE="$mod" PACKAGES="$opk" FILES="files" || exit $?
 
 ## copy bin files
