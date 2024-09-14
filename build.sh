@@ -21,7 +21,7 @@ if [[ $i -eq 1 ]]; then
 fi
 
 ## download and extract imagebuilder package
-if [[ -v $url ]]; then
+if [[ -n $url ]]; then
   f="${url##*/}"
 else
   echo
@@ -52,7 +52,7 @@ uci set uhttpd.main.redirect_https='1'
 uci set wireless.radio0.disabled='0'
 uci commit
 EOF
-[[ -v $pas ]] && cat >files/etc/uci-defaults/02-password <<EOF
+[[ -n $pas ]] && cat >files/etc/uci-defaults/02-password <<EOF
 echo -e "$pas\n$pas" | passwd root
 EOF
 
