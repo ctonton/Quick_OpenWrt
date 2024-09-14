@@ -47,8 +47,6 @@ cd "$d"
 rm -rf files/etc/uci-defaults
 mkdir -p files/etc/uci-defaults
 cat >files/etc/uci-defaults/01-defaults <<EOF
-uci set dropbear.@dropbear[0].Interface='lan'
-uci set uhttpd.main.redirect_https='1'
 uci set wireless.radio0.disabled='0'
 uci commit
 EOF
