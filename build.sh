@@ -17,7 +17,7 @@ fi
 ## extra packages to install
 opk="luci-ssl luci-app-opkg nano"
 
-## set password or comment out to choose later
+## set default password or comment out to leave as "password"
 #pas=password
 
 ## download and extract imagebuilder package
@@ -45,27 +45,18 @@ if [[ ! -d "$d" ]]; then
 fi
 cd "$d"
 
-## set default password
-mkdir -p files/etc/uci-defaults
-rm -f files/etc/uci-defaults/*
-if [[ -z $pas ]]; then
-  read -p "Enter a login password: " pas
-fi
-cat >files/etc/uci-defaults/01-passwd <<EOF
-passwd root <<EOT
-$p
-$p
-EOT
-EOF
-
 ## set uci defaults
-cat >files/etc/uci-defaults/02-default <<EOF
-uci set network.lan.ipaddr='192.168.1.1'
+mkdir -p files/etc/uci-defaults
+cat >files/etc/uci-defaults/01-default <<EOF
+echo -e 'password\npassword' | passwd root
 uci set dropbear.@dropbear[0].Interface='lan'
 uci set uhttpd.main.redirect_https='1'
 uci set wireless.radio0.disabled='0'
 uci commit
 EOF
+if [[ -v $pas ]]; then
+  sed -i "s/password/$pas/g" files/etc/uci-defaults/01-default
+fi
 
 ## build images
 if [[ -z $mod ]]; then
@@ -80,7 +71,7 @@ if [[ -z $mod ]]; then
 fi
 make image PROFILE="$mod" PACKAGES="$opk" FILES="files" || exit $?
 
-## copy sysupgrade.bin
-cp -u $(find bin/ -name *sysupgrade.bin) ../
+## copy bin files
+cp -u $(find bin/ -name *.bin) ../
 cd ..
 exit 0
