@@ -21,7 +21,9 @@ if [[ $i -eq 1 ]]; then
 fi
 
 ## download and extract imagebuilder package
-if [[ -z $url ]]; then
+if [[ -v $url ]]; then
+  f="${url##*/}"
+else
   echo
   PS3="Select openwrt version: "
   select v in $(curl -s https://downloads.openwrt.org/releases/ | pup 'tr td a text{}' | grep "^[0-9]"); do break; done
@@ -33,19 +35,16 @@ if [[ -z $url ]]; then
   select c in $(curl -s https://downloads.openwrt.org/releases/"$v"/targets/"$a"/ | pup 'tr a text{}'); do break; done
   f=$(curl -s https://downloads.openwrt.org/releases/"$v"/targets/"$a"/"$c"/ | pup 'tr a text{}' | grep 'imagebuilder')
   url=https://downloads.openwrt.org/releases/"$v"/targets/"$a"/"$c"/"$f"
-else
-  f="${url##*/}"
 fi
 if [[ ! -f "$f" ]]; then
   wget "$url" || exit $?
 fi
 d="${f%.tar.xz}"
-if [[ ! -d "$d" ]]; then
-  tar -J -x -f "$f"
-fi
+[[ -d "$d" ]] || tar -J -x -f "$f"
 cd "$d"
 
 ## set uci defaults
+rm -rf files/etc/uci-defaults
 mkdir -p files/etc/uci-defaults
 cat >files/etc/uci-defaults/01-defaults <<EOF
 uci set dropbear.@dropbear[0].Interface='lan'
