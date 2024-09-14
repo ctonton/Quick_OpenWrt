@@ -59,7 +59,7 @@ if [[ -z $mod ]]; then
   [[ -f .profiles.mk ]] || make info &>/dev/null
   echo
   PS3="Select router make: "
-  select b in $(cat .profiles.mk | grep "DEVICE_.*NAME" | cut -d '_' -f2 | sort -u); do break; done
+  select b in $(cat .profiles.mk | grep 'DEVICE_.*NAME' | cut -d '_' -f2 | sort -u); do break; done
   echo
   PS3="Select router model: "
   select r in $(cat .profiles.mk | grep "DEVICE_$b.*NAME" | cut -d '_' -f3); do break; done
