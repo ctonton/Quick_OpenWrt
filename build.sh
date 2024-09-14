@@ -10,10 +10,10 @@
 opk="luci-ssl luci-app-opkg nano"
 
 ## set default password or comment out to leave blank
-pas=password
+pas="password"
 
 ## check for and install dependencies
-dep="build-essential libncurses-dev zlib1g-dev gawk git gettext libssl-dev xsltproc rsync wget unzip python3 python3-distutils curl"
+dep="build-essential libncurses-dev zlib1g-dev gawk git gettext libssl-dev xsltproc rsync wget unzip python3 python3-distutils curl pup"
 for p in $dep; do dpkg -l "$p" 2>/dev/null | grep -q '^ii' || i=1; done
 if [[ $i -eq 1 ]]; then
   sudo apt update
@@ -24,15 +24,15 @@ fi
 if [[ -z $url ]]; then
   echo
   PS3="Select openwrt version: "
-  select v in $(curl -s https://downloads.openwrt.org/releases/ | grep 'td class' | cut -d '"' -f4 | grep "^[0-9]"); do break; done
+  select v in $(curl -s https://downloads.openwrt.org/releases/ | pup 'tr td a text{}' | grep "^[0-9]"); do break; done
   echo
   PS3="Select arch target: "
-  select a in $(curl -s https://downloads.openwrt.org/releases/"$v"targets/ | grep 'td class' | cut -d '"' -f4); do break; done
+  select a in $(curl -s https://downloads.openwrt.org/releases/"$v"/targets/ | pup 'tr a text{}'); do break; done
   echo
   PS3="Select chip model: "
-  select c in $(curl -s https://downloads.openwrt.org/releases/"$v"targets/"$a" | grep 'td class' | cut -d '"' -f4); do break; done
-  f=$(curl -s https://downloads.openwrt.org/releases/"$v"targets/"$a""$c" | grep 'openwrt-imagebuilder' | cut -d '"' -f4)
-  url=https://downloads.openwrt.org/releases/"$v"targets/"$a""$c""$f"
+  select c in $(curl -s https://downloads.openwrt.org/releases/"$v"/targets/"$a"/ | pup 'tr a text{}'); do break; done
+  f=$(curl -s https://downloads.openwrt.org/releases/"$v"/targets/"$a"/"$c"/ | pup 'tr a text{}' | grep 'imagebuilder')
+  url=https://downloads.openwrt.org/releases/"$v"/targets/"$a"/"$c"/"$f"
 else
   f="${url##*/}"
 fi
