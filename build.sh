@@ -1,13 +1,5 @@
 #!/bin/bash
 
-## check for and install dependencies
-dep="build-essential libncurses-dev zlib1g-dev gawk git gettext libssl-dev xsltproc rsync wget unzip python3 python3-distutils curl"
-for p in $dep; do dpkg -l "$p" 2>/dev/null | grep -q '^ii' || i=1; done
-if [[ $i -eq 1 ]]; then
-  sudo apt update
-  sudo apt install -y $dep || exit $?
-fi
-
 ## address of imagebuilder package or comment out to chose later
 #url="https://downloads.openwrt.org/releases/23.05.4/targets/ramips/mt7621/openwrt-imagebuilder-23.05.4-ramips-mt7621.Linux-x86_64.tar.xz"
 
@@ -17,8 +9,16 @@ fi
 ## extra packages to install
 opk="luci-ssl luci-app-opkg nano"
 
-## set default password or comment out to leave as "password"
-#pas=password
+## set default password or comment out to leave blank
+pas=password
+
+## check for and install dependencies
+dep="build-essential libncurses-dev zlib1g-dev gawk git gettext libssl-dev xsltproc rsync wget unzip python3 python3-distutils curl"
+for p in $dep; do dpkg -l "$p" 2>/dev/null | grep -q '^ii' || i=1; done
+if [[ $i -eq 1 ]]; then
+  sudo apt update
+  sudo apt install -y $dep || exit $?
+fi
 
 ## download and extract imagebuilder package
 if [[ -z $url ]]; then
@@ -47,16 +47,15 @@ cd "$d"
 
 ## set uci defaults
 mkdir -p files/etc/uci-defaults
-cat >files/etc/uci-defaults/01-default <<EOF
-echo -e 'password\npassword' | passwd root
+cat >files/etc/uci-defaults/01-defaults <<EOF
 uci set dropbear.@dropbear[0].Interface='lan'
 uci set uhttpd.main.redirect_https='1'
 uci set wireless.radio0.disabled='0'
 uci commit
 EOF
-if [[ -v $pas ]]; then
-  sed -i "s/password/$pas/g" files/etc/uci-defaults/01-default
-fi
+[[ -v $pas ]] && cat >files/etc/uci-defaults/02-password <<EOF
+echo -e "$pas\n$pas" | passwd root
+EOF
 
 ## build images
 if [[ -z $mod ]]; then
