@@ -63,7 +63,7 @@ if [[ -z $mod ]]; then
   echo
   PS3="Select router model: "
   select r in $(cat .profiles.mk | grep "DEVICE_$b.*NAME" | cut -d '_' -f3); do break; done
-  mod=$b"_"$r
+  mod="$b"_"$r"
 fi
 rm -rf bin
 make image PROFILE="$mod" PACKAGES="$opk" FILES="files" || exit $?
