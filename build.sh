@@ -69,6 +69,6 @@ rm -rf bin
 make image PROFILE="$mod" PACKAGES="$opk" FILES="files" || exit $?
 
 ## copy bin files
-cp -u $(find bin/ -name *.bin) ../
+cp -u bin/targets/"$a"/"$c"/!(*.manifest|*.json|sha256sums) ../
 cd ..
 exit 0
