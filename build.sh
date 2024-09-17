@@ -1,4 +1,5 @@
 #!/bin/bash
+rm -f /tmp/deflist /tmp/ipklist
 
 ## address of imagebuilder package or comment out to chose later
 #url="https://downloads.openwrt.org/releases/23.05.4/targets/ramips/mt7621/openwrt-imagebuilder-23.05.4-ramips-mt7621.Linux-x86_64.tar.xz"
@@ -13,10 +14,10 @@ pas="password"
 opk="luci"
 
 ## url's of other packages to download
-ipk=(
+cat >/tmp/ipklist <<EOF
 https://github.com/4IceG/luci-app-3ginfo-lite/releases/download/1.0.74-20240827/luci-app-3ginfo-lite_1.0.74-20240827_all.ipk
 https://github.com/4IceG/luci-app-sms-tool-js/releases/download/2.0.24-20240827/luci-app-sms-tool-js_2.0.24-20240827_all.ipk
-)
+EOF
 
 ## set uci defaults
 cat >/tmp/deflist <<EOF
@@ -58,14 +59,14 @@ cd "$d"
 
 # download other packages
 mkdir -p packages
-for i in ${ipk[@]}; do
+for i in $(cat /tmp/ipklist 2>/dev/null); do
   [[ -f packages/"${i##*/}" ]] || wget "$i" -P packages/
 done
 
 # write defaults
 rm -rf files/etc/uci-defaults
 mkdir -p files/etc/uci-defaults
-cp /tmp/deflist files/etc/uci-defaults/01-defaults
+cat /tmp/deflist 2>/dev/null >files/etc/uci-defaults/01-defaults
 echo "uci commit" >>files/etc/uci-defaults/01-defaults
 [[ -n $pas ]] && cat >files/etc/uci-defaults/02-password <<EOF
 echo -e "$pas\n$pas" | passwd root
