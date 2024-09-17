@@ -11,7 +11,7 @@ rm -f /tmp/deflist /tmp/ipklist
 pas="password"
 
 ## packages to install
-opk="luci"
+opk=(luci)
 
 ## url's of other packages to download
 cat >/tmp/ipklist <<EOF
@@ -25,8 +25,8 @@ uci set wireless.radio0.disabled='0'
 EOF
 
 # check for and install dependencies
-dep="build-essential libncurses-dev zlib1g-dev gawk git gettext libssl-dev xsltproc rsync wget unzip python3 python3-distutils curl pup"
-for p in $dep; do dpkg -l "$p" 2>/dev/null | grep -q '^ii' || i=1; done
+dep=(build-essential libncurses-dev zlib1g-dev gawk git gettext libssl-dev xsltproc rsync wget unzip python3 python3-distutils curl pup)
+for p in ${dep[@]}; do dpkg -l "$p" 2>/dev/null | grep -q '^ii' || i=1; done
 if [[ $i -eq 1 ]]; then
   sudo apt update
   sudo apt install -y $dep || exit $?
@@ -84,7 +84,7 @@ if [[ -z $mod ]]; then
   mod="$b"_"$r"
 fi
 rm -rf bin/targets/"$a"/"$c"/*
-make image PROFILE="$mod" PACKAGES="$opk" FILES="files" || exit $?
+make image PROFILE="$mod" PACKAGES="${opk[@]}" FILES="files" || exit $?
 
 # host new files
 pgrep -x python3 >/dev/null && kill $(pgrep -x python3)
