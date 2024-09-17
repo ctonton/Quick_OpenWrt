@@ -1,13 +1,13 @@
 #!/bin/bash
 
 ## address of imagebuilder package or comment out to chose later
-#url="https://downloads.openwrt.org/releases/23.05.4/targets/ramips/mt7621/openwrt-imagebuilder-23.05.4-ramips-mt7621.Linux-x86_64.tar.xz"
+url="https://downloads.openwrt.org/releases/23.05.4/targets/ramips/mt7621/openwrt-imagebuilder-23.05.4-ramips-mt7621.Linux-x86_64.tar.xz"
 
 ## model of router to build for or comment out to chose later
-#mod="xiaomi_mi-router-4a-gigabit"
+mod="xiaomi_mi-router-4a-gigabit"
 
 ## extra packages to install
-opk="luci-ssl luci-app-opkg nano"
+opk="luci"
 
 ## set default password or comment out to leave blank
 pas="password"
