@@ -6,11 +6,19 @@ url="https://downloads.openwrt.org/releases/23.05.4/targets/ramips/mt7621/openwr
 ## model of router to build for or comment out to chose later
 mod="xiaomi_mi-router-4a-gigabit"
 
+## set default password or comment out to leave blank
+pas="password"
+
 ## extra packages to install
 opk="luci"
 
-## set default password or comment out to leave blank
-pas="password"
+## set uci defaults
+def() {
+  cat >files/etc/uci-defaults/01-defaults <<EOF
+uci set wireless.radio0.disabled='0'
+uci commit
+EOF
+}
 
 ## check for and install dependencies
 dep="build-essential libncurses-dev zlib1g-dev gawk git gettext libssl-dev xsltproc rsync wget unzip python3 python3-distutils curl pup"
@@ -45,13 +53,10 @@ d="${f%.tar.xz}"
 [[ -d "$d" ]] || tar -J -x -f "$f"
 cd "$d"
 
-## set uci defaults
+## set defaults
 rm -rf files/etc/uci-defaults
 mkdir -p files/etc/uci-defaults
-cat >files/etc/uci-defaults/01-defaults <<EOF
-uci set wireless.radio0.disabled='0'
-uci commit
-EOF
+def
 [[ -n $pas ]] && cat >files/etc/uci-defaults/02-password <<EOF
 echo -e "$pas\n$pas" | passwd root
 EOF
