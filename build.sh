@@ -65,10 +65,11 @@ if [[ -z $mod ]]; then
   select r in $(cat .profiles.mk | grep "DEVICE_$b.*NAME" | cut -d '_' -f3); do break; done
   mod="$b"_"$r"
 fi
-rm -rf bin
+rm -rf bin/targets/"$a"/"$c"/*
 make image PROFILE="$mod" PACKAGES="$opk" FILES="files" || exit $?
 
-## copy bin files
-cp -u bin/targets/"$a"/"$c"/!(*.manifest|*.json|sha256sums) ../
+## host new files
+pgrep -x python3 >/dev/null && kill $(pgrep -x python3)
+nohup python3 -m http.server --directory bin/targets/"$a"/"$c"/ &>/dev/null &
 cd ..
 exit 0
