@@ -22,6 +22,8 @@ fi
 
 ## download and extract imagebuilder package
 if [[ -n $url ]]; then
+  a="$(echo $url | cut -d '/' -f7)"
+  c="$(echo $url | cut -d '/' -f8)"
   f="${url##*/}"
 else
   echo
@@ -70,6 +72,8 @@ make image PROFILE="$mod" PACKAGES="$opk" FILES="files" || exit $?
 
 ## host new files
 pgrep -x python3 >/dev/null && kill $(pgrep -x python3)
-nohup python3 -m http.server --directory bin/targets/"$a"/"$c"/ &>/dev/null &
-cd ..
+cd bin/targets/"$a"/"$c"
+nohup python3 -m http.server &>/dev/null &
+echo
+echo "Files can be downloaded from http://localhost:8000"
 exit 0
