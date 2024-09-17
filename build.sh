@@ -9,16 +9,19 @@
 ## set default password or comment out to leave blank
 pas="password"
 
-## extra packages to install
+## packages to install
 opk="luci"
 
-## set uci defaults
-def() {
-  cat >files/etc/uci-defaults/01-defaults <<EOF
-uci set wireless.radio0.disabled='0'
-uci commit
+## url's of other packages to download
+cat >/tmp/ipklist <<EOF
+https://github.com/4IceG/luci-app-3ginfo-lite/releases/download/1.0.74-20240827/luci-app-3ginfo-lite_1.0.74-20240827_all.ipk
+https://github.com/4IceG/luci-app-sms-tool-js/releases/download/2.0.24-20240827/luci-app-sms-tool-js_2.0.24-20240827_all.ipk
 EOF
-}
+
+## set uci defaults
+cat >/tmp/deflist <<EOF
+uci set wireless.radio0.disabled='0'
+EOF
 
 # check for and install dependencies
 dep="build-essential libncurses-dev zlib1g-dev gawk git gettext libssl-dev xsltproc rsync wget unzip python3 python3-distutils curl pup"
@@ -53,10 +56,17 @@ d="${f%.tar.xz}"
 [[ -d "$d" ]] || tar -J -x -f "$f"
 cd "$d"
 
+# download other packages
+mkdir -p packages
+for ipk in $(cat /tmp/ipklist); do
+  [[ -f packages/"${ipk##*/}" ]] || wget "$ipk" -P packages/
+done
+
 # write defaults
 rm -rf files/etc/uci-defaults
 mkdir -p files/etc/uci-defaults
-def
+cp /tmp/deflist files/etc/uci-defaults/01-defaults
+echo "uci commit" >>files/etc/uci-defaults/01-defaults
 [[ -n $pas ]] && cat >files/etc/uci-defaults/02-password <<EOF
 echo -e "$pas\n$pas" | passwd root
 EOF
