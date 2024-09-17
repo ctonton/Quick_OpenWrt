@@ -2,13 +2,13 @@
 rm -f /tmp/deflist /tmp/ipklist
 
 ## address of imagebuilder package or comment out to chose later
-#url="https://downloads.openwrt.org/releases/23.05.4/targets/ramips/mt7621/openwrt-imagebuilder-23.05.4-ramips-mt7621.Linux-x86_64.tar.xz"
+#url=https://downloads.openwrt.org/releases/23.05.4/targets/ramips/mt7621/openwrt-imagebuilder-23.05.4-ramips-mt7621.Linux-x86_64.tar.xz
 
 ## model of router to build for or comment out to chose later
-#mod="xiaomi_mi-router-4a-gigabit"
+#mod=xiaomi_mi-router-4a-gigabit
 
 ## set default password or comment out to leave blank
-pas="password"
+pas=password
 
 ## packages to install
 opk=(luci)
@@ -84,7 +84,7 @@ if [[ -z $mod ]]; then
   mod="$b"_"$r"
 fi
 rm -rf bin/targets/"$a"/"$c"/*
-make image PROFILE="$mod" PACKAGES="${opk[@]}" FILES="files" || exit $?
+make image PROFILE="$mod" PACKAGES="${opk[*]}" FILES="files" || exit $?
 
 # host new files
 pgrep -x python3 >/dev/null && kill $(pgrep -x python3)
