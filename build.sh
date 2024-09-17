@@ -53,7 +53,7 @@ d="${f%.tar.xz}"
 [[ -d "$d" ]] || tar -J -x -f "$f"
 cd "$d"
 
-## set defaults
+## write defaults
 rm -rf files/etc/uci-defaults
 mkdir -p files/etc/uci-defaults
 def
@@ -81,4 +81,5 @@ cd bin/targets/"$a"/"$c"
 nohup python3 -m http.server &>/dev/null &
 echo
 echo "Files can be downloaded from http://$(hostname -I | awk '{print $1}'):8000"
+echo
 exit 0
