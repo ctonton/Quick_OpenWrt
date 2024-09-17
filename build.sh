@@ -1,10 +1,10 @@
 #!/bin/bash
 
 ## address of imagebuilder package or comment out to chose later
-url="https://downloads.openwrt.org/releases/23.05.4/targets/ramips/mt7621/openwrt-imagebuilder-23.05.4-ramips-mt7621.Linux-x86_64.tar.xz"
+#url="https://downloads.openwrt.org/releases/23.05.4/targets/ramips/mt7621/openwrt-imagebuilder-23.05.4-ramips-mt7621.Linux-x86_64.tar.xz"
 
 ## model of router to build for or comment out to chose later
-mod="xiaomi_mi-router-4a-gigabit"
+#mod="xiaomi_mi-router-4a-gigabit"
 
 ## set default password or comment out to leave blank
 pas="password"
@@ -20,7 +20,7 @@ uci commit
 EOF
 }
 
-## check for and install dependencies
+# check for and install dependencies
 dep="build-essential libncurses-dev zlib1g-dev gawk git gettext libssl-dev xsltproc rsync wget unzip python3 python3-distutils curl pup"
 for p in $dep; do dpkg -l "$p" 2>/dev/null | grep -q '^ii' || i=1; done
 if [[ $i -eq 1 ]]; then
@@ -28,7 +28,7 @@ if [[ $i -eq 1 ]]; then
   sudo apt install -y $dep || exit $?
 fi
 
-## download and extract imagebuilder package
+# download and extract imagebuilder package
 if [[ -n $url ]]; then
   a="$(echo $url | cut -d '/' -f7)"
   c="$(echo $url | cut -d '/' -f8)"
@@ -53,7 +53,7 @@ d="${f%.tar.xz}"
 [[ -d "$d" ]] || tar -J -x -f "$f"
 cd "$d"
 
-## write defaults
+# write defaults
 rm -rf files/etc/uci-defaults
 mkdir -p files/etc/uci-defaults
 def
@@ -61,7 +61,7 @@ def
 echo -e "$pas\n$pas" | passwd root
 EOF
 
-## build images
+# build images
 if [[ -z $mod ]]; then
   [[ -f .profiles.mk ]] || make info &>/dev/null
   echo
@@ -75,7 +75,7 @@ fi
 rm -rf bin/targets/"$a"/"$c"/*
 make image PROFILE="$mod" PACKAGES="$opk" FILES="files" || exit $?
 
-## host new files
+# host new files
 pgrep -x python3 >/dev/null && kill $(pgrep -x python3)
 cd bin/targets/"$a"/"$c"
 nohup python3 -m http.server &>/dev/null &
