@@ -13,10 +13,10 @@ pas="password"
 opk="luci"
 
 ## url's of other packages to download
-cat >/tmp/ipklist <<EOF
+ipk=(
 https://github.com/4IceG/luci-app-3ginfo-lite/releases/download/1.0.74-20240827/luci-app-3ginfo-lite_1.0.74-20240827_all.ipk
 https://github.com/4IceG/luci-app-sms-tool-js/releases/download/2.0.24-20240827/luci-app-sms-tool-js_2.0.24-20240827_all.ipk
-EOF
+)
 
 ## set uci defaults
 cat >/tmp/deflist <<EOF
@@ -58,8 +58,8 @@ cd "$d"
 
 # download other packages
 mkdir -p packages
-for ipk in $(cat /tmp/ipklist); do
-  [[ -f packages/"${ipk##*/}" ]] || wget "$ipk" -P packages/
+for i in ${ipk[@]}; do
+  [[ -f packages/"${i##*/}" ]] || wget "$i" -P packages/
 done
 
 # write defaults
