@@ -75,5 +75,5 @@ pgrep -x python3 >/dev/null && kill $(pgrep -x python3)
 cd bin/targets/"$a"/"$c"
 nohup python3 -m http.server &>/dev/null &
 echo
-echo "Files can be downloaded from http://localhost:8000"
+echo "Files can be downloaded from http://$(hostname -I | xargs):8000"
 exit 0
