@@ -66,9 +66,9 @@ done
 # write defaults
 rm -rf files/etc/uci-defaults
 mkdir -p files/etc/uci-defaults
-cat /tmp/deflist 2>/dev/null >files/etc/uci-defaults/01-defaults
-echo "uci commit" >>files/etc/uci-defaults/01-defaults
-[[ -n $pas ]] && cat >files/etc/uci-defaults/02-password <<EOF
+cat /tmp/deflist 2>/dev/null >files/etc/uci-defaults/98-defaults
+echo "uci commit" >>files/etc/uci-defaults/98-defaults
+[[ -n $pas ]] && cat >files/etc/uci-defaults/99-password <<EOF
 echo -e "$pas\n$pas" | passwd root
 EOF
 
