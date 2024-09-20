@@ -13,12 +13,6 @@ pas=password
 ## packages to install
 opk=(luci)
 
-## url's of other packages to download
-cat >/tmp/ipklist <<EOF
-https://github.com/4IceG/luci-app-3ginfo-lite/releases/download/1.0.74-20240827/luci-app-3ginfo-lite_1.0.74-20240827_all.ipk
-https://github.com/4IceG/luci-app-sms-tool-js/releases/download/2.0.24-20240827/luci-app-sms-tool-js_2.0.24-20240827_all.ipk
-EOF
-
 ## set uci defaults
 cat >/tmp/deflist <<EOF
 uci set wireless.radio0.disabled='0'
@@ -56,12 +50,6 @@ fi
 d="${f%.tar.xz}"
 [[ -d "$d" ]] || tar -J -x -f "$f"
 cd "$d"
-
-# download other packages
-mkdir -p packages
-for i in $(cat /tmp/ipklist 2>/dev/null); do
-  [[ -f packages/"${i##*/}" ]] || wget "$i" -P packages/
-done
 
 # write defaults
 rm -rf files/etc/uci-defaults
