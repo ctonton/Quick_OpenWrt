@@ -1,11 +1,10 @@
 #!/bin/bash
-rm -f /tmp/deflist /tmp/ipklist
 
 ## address of imagebuilder package or comment out to chose later
 #url="https://downloads.openwrt.org/releases/23.05.4/targets/ramips/mt7621/openwrt-imagebuilder-23.05.4-ramips-mt7621.Linux-x86_64.tar.xz"
 
 ## model of router to build for or comment out to chose later
-#mod="xiaomi_mi-router-4a-gigabit"
+#mod="xiaomi_redmi-router-ac2100"
 
 ## set default password or comment out to leave blank
 pas="password"
