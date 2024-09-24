@@ -10,7 +10,7 @@
 pas="password"
 
 ## packages to install
-opk="(luci)"
+opk="luci"
 
 ## set uci defaults
 cat >/tmp/deflist <<EOF
@@ -72,7 +72,7 @@ if [[ -z $mod ]]; then
   mod="$b"_"$r"
 fi
 rm -rf bin/targets/"$a"/"$c"/*
-make image PROFILE="$mod" PACKAGES="${opk[*]}" FILES="files" || exit $?
+make image PROFILE="$mod" PACKAGES="$opk" FILES="files" || exit $?
 
 # host new files
 pgrep -x python3 >/dev/null && kill $(pgrep -x python3)
