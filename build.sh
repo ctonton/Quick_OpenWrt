@@ -2,16 +2,16 @@
 rm -f /tmp/deflist /tmp/ipklist
 
 ## address of imagebuilder package or comment out to chose later
-#url=https://downloads.openwrt.org/releases/23.05.4/targets/ramips/mt7621/openwrt-imagebuilder-23.05.4-ramips-mt7621.Linux-x86_64.tar.xz
+#url="https://downloads.openwrt.org/releases/23.05.4/targets/ramips/mt7621/openwrt-imagebuilder-23.05.4-ramips-mt7621.Linux-x86_64.tar.xz"
 
 ## model of router to build for or comment out to chose later
-#mod=xiaomi_mi-router-4a-gigabit
+#mod="xiaomi_mi-router-4a-gigabit"
 
 ## set default password or comment out to leave blank
-pas=password
+pas="password"
 
 ## packages to install
-opk=(luci)
+opk="(luci)"
 
 ## set uci defaults
 cat >/tmp/deflist <<EOF
@@ -19,8 +19,8 @@ uci set wireless.radio0.disabled='0'
 EOF
 
 # check for and install dependencies
-dep=(build-essential libncurses-dev zlib1g-dev gawk git gettext libssl-dev xsltproc rsync wget unzip python3 python3-distutils curl pup)
-for p in ${dep[@]}; do dpkg -l "$p" 2>/dev/null | grep -q '^ii' || i=1; done
+dep="build-essential libncurses-dev zlib1g-dev gawk git gettext libssl-dev xsltproc rsync wget unzip python3 python3-distutils curl pup"
+for p in $dep; do dpkg -l "$p" 2>/dev/null | grep -q '^ii' || i=1; done
 if [[ $i -eq 1 ]]; then
   sudo apt update
   sudo apt install -y $dep || exit $?
@@ -59,6 +59,7 @@ echo "uci commit" >>files/etc/uci-defaults/98-defaults
 [[ -n $pas ]] && cat >files/etc/uci-defaults/99-password <<EOF
 echo -e "$pas\n$pas" | passwd root
 EOF
+rm /tmp/deflist
 
 # build images
 if [[ -z $mod ]]; then
