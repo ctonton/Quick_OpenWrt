@@ -13,9 +13,10 @@ pas="password"
 opk="luci"
 
 ## set uci defaults
-cat >/tmp/deflist <<EOF
+deflist() { cat <<EOT
 uci set wireless.radio0.disabled='0'
-EOF
+EOT
+}
 
 # check for and install dependencies
 dep="build-essential libncurses-dev zlib1g-dev gawk git gettext libssl-dev xsltproc rsync wget unzip python3 python3-distutils curl pup"
@@ -53,7 +54,7 @@ cd "$d"
 # write defaults
 rm -rf files/etc/uci-defaults
 mkdir -p files/etc/uci-defaults
-cat /tmp/deflist 2>/dev/null >files/etc/uci-defaults/98-defaults
+deflist >files/etc/uci-defaults/98-defaults
 echo "uci commit" >>files/etc/uci-defaults/98-defaults
 [[ -n $pas ]] && cat >files/etc/uci-defaults/99-password <<EOF
 echo -e "$pas\n$pas" | passwd root
