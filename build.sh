@@ -1,10 +1,10 @@
 #!/bin/bash
 
 ## address of imagebuilder package or comment out to chose later
-#url="https://downloads.openwrt.org/releases/23.05.5/targets/ramips/mt7621/openwrt-imagebuilder-23.05.5-ramips-mt7621.Linux-x86_64.tar.xz"
+url="https://downloads.openwrt.org/releases/23.05.5/targets/ramips/mt7621/openwrt-imagebuilder-23.05.5-ramips-mt7621.Linux-x86_64.tar.xz"
 
 ## model of router to build for or comment out to chose later
-#mod="xiaomi_redmi-router-ac2100"
+mod="xiaomi_redmi-router-ac2100"
 
 ## set default password or comment out to leave blank
 pas="password"
@@ -14,6 +14,7 @@ opk="luci"
 
 ## set uci defaults
 deflist() { cat <<EOT
+uci set system.@system[0].hostname='ac2100'
 uci set wireless.radio0.disabled='0'
 EOT
 }
