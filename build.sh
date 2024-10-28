@@ -10,7 +10,7 @@ mod="xiaomi_redmi-router-ac2100"
 pas="password"
 
 ## packages to install
-opk="luci"
+opk="luci nano"
 
 ## set uci defaults
 deflist() { cat <<EOT
@@ -55,8 +55,8 @@ cd "$d"
 # write defaults
 rm -rf files/etc/uci-defaults
 mkdir -p files/etc/uci-defaults
-deflist >files/etc/uci-defaults/98-defaults
-echo "uci commit" >>files/etc/uci-defaults/98-defaults
+deflist >files/etc/uci-defaults/90-defaults
+echo "uci commit" >>files/etc/uci-defaults/90-defaults
 [[ -n $pas ]] && cat >files/etc/uci-defaults/99-password <<EOF
 echo -e "$pas\n$pas" | passwd root
 EOF
