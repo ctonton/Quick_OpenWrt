@@ -10,12 +10,15 @@ mod="xiaomi_redmi-router-ac2100"
 pas="password"
 
 ## packages to install
-opk="luci nano"
+opk="luci luci-proto-wireguard nano"
 
 ## set uci defaults
 deflist() { cat <<EOT
 uci set system.@system[0].hostname='ac2100'
 uci set wireless.radio0.disabled='0'
+uci set wireless.radio0.country='US'
+uci set wireless.radio1.disabled='0'
+uci set wireless.radio1.country='US'
 EOT
 }
 
