@@ -25,10 +25,7 @@ EOT
 # check for and install dependencies
 dep="build-essential curl file gawk gettext git libncurses-dev libssl-dev pup python3 python3-distutils rsync unzip wget xsltproc zlib1g-dev"
 for p in $dep; do dpkg -l "$p" 2>/dev/null | grep -q '^ii' || i=1; done
-if [[ $i -eq 1 ]]; then
-  sudo apt update
-  sudo apt install -y $dep || exit $?
-fi
+[[ $i -eq 1 ]] && (sudo apt update; sudo apt install -y $dep || exit $?)
 
 # download and extract imagebuilder package
 if [[ -n $url ]]; then
@@ -48,9 +45,7 @@ else
   f=$(curl -s https://downloads.openwrt.org/releases/"$v"/targets/"$a"/"$c"/ | pup 'tr a text{}' | grep 'imagebuilder')
   url=https://downloads.openwrt.org/releases/"$v"/targets/"$a"/"$c"/"$f"
 fi
-if [[ ! -f "$f" ]]; then
-  wget "$url" || exit $?
-fi
+[[ ! -f "$f" ]] && (wget "$url" || exit $?)
 d="${f%.tar.xz}"
 [[ -d "$d" ]] || tar -J -x -f "$f"
 cd "$d"
