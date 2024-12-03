@@ -1,16 +1,19 @@
 #!/bin/bash
 
 ## address of imagebuilder package or comment out to chose later
-url="https://downloads.openwrt.org/releases/23.05.5/targets/mediatek/filogic/openwrt-imagebuilder-23.05.5-mediatek-filogic.Linux-x86_64.tar.xz"
+#url="https://downloads.openwrt.org/releases/23.05.5/targets/mediatek/filogic/openwrt-imagebuilder-23.05.5-mediatek-filogic.Linux-x86_64.tar.xz"
 
 ## model of router to build for or comment out to chose later
-mod="xiaomi_redmi-router-ax6000-ubootmod"
+#mod="xiaomi_redmi-router-ax6000-ubootmod"
 
 ## set default password or comment out to leave blank
 pas="password"
 
 ## packages to install
 opk="luci luci-proto-wireguard nano"
+
+## set TTL for celular data or comment out to diable
+#ttl=65
 
 ## set uci defaults
 deflist() { cat <<EOT
@@ -58,6 +61,13 @@ echo "uci commit" >>files/etc/uci-defaults/90-defaults
 [[ -n $pas ]] && cat >files/etc/uci-defaults/99-password <<EOF
 echo -e "$pas\n$pas" | passwd root
 EOF
+if [[ -n $ttl ]]; then
+  mkdir -p files/usr/share/nftables.d/chain-pre/mangle_postrouting
+  cat >files/usr/share/nftables.d/chain-pre/mangle_postrouting/01-set-ttl.nft <<EOT
+ip ttl set $ttl
+ip6 hoplimit set $ttl
+EOT
+fi
 
 # build images
 if [[ -z $mod ]]; then
