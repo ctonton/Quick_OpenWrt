@@ -1,7 +1,5 @@
 #!/bin/bash
 
-## place any additional packages in the same directory as this build script
-
 ## address of imagebuilder package or comment out to chose later
 url='https://downloads.openwrt.org/releases/23.05.5/targets/ramips/mt7621/openwrt-imagebuilder-23.05.5-ramips-mt7621.Linux-x86_64.tar.xz'
 
@@ -10,7 +8,11 @@ mod='zbtlink_zbt-we1326'
 
 ## set a default password and dropbear key or comment out to leave blank
 pas='password'
-key='ssh-rsa'
+key='ssh-rsa..........................'
+
+## custom repository to pull packages from or comment out to disable
+rep='src/gz IceG_repo https://github.com/4IceG/Modem-extras/raw/main/myrepo'
+## place any additional packages in the same directory as this build script
 
 ## packages to install
 opk='\
@@ -146,6 +148,10 @@ fi
 d="${f%.tar.xz}"
 [[ -d "$d" ]] || tar -J -x -f "$f"
 cd "$d"
+if [[ -n $rep ]]; then
+  sed -i 's/^option/#option/' repositories.conf
+  [[ $(grep "$rep" repositories.conf) ]] || echo $rep >>repositories.conf
+fi
 rm -rf bin files
 
 # write defaults
