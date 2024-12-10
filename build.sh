@@ -43,7 +43,7 @@ socat'
 ## set TTL for celular data or comment out to diable
 ttl='65'
 
-## command to reboot the cellular modem or comment out to diable
+## watchcat command to reboot the cellular modem or comment out to diable
 wac='echo -e "AT+CFUN=1,1" >/dev/ttyUSB2'
 
 ## schedule tasks or comment out the next line to disable
