@@ -137,19 +137,20 @@ if [[ -n $url ]]; then
 else
   echo
   PS3="Select openwrt version: "
-  select v in $(curl -s https://downloads.openwrt.org/releases/ | pup 'tr td a text{}' | grep '^[0-9]'); do break; done
+  select v in snapshots $(curl -s https://downloads.openwrt.org/releases/ | pup 'tr td a text{}' | grep '^[0-9]'); do break; done
+  [[ $v == "snapshots" ]] && r="$v" || r="releases/$v"
   echo
   PS3="Select arch target: "
-  select a in $(curl -s https://downloads.openwrt.org/releases/"$v"/targets/ | pup 'tr a text{}'); do break; done
+  select a in $(curl -s https://downloads.openwrt.org/"$r"/targets/ | pup 'tr a text{}'); do break; done
   echo
   PS3="Select chip model: "
-  select c in $(curl -s https://downloads.openwrt.org/releases/"$v"/targets/"$a"/ | pup 'tr a text{}'); do break; done
-  f=$(curl -s https://downloads.openwrt.org/releases/"$v"/targets/"$a"/"$c"/ | pup 'tr a text{}' | grep 'imagebuilder')
-  url=https://downloads.openwrt.org/releases/"$v"/targets/"$a"/"$c"/"$f"
+  select c in $(curl -s https://downloads.openwrt.org/"$r"/targets/"$a"/ | pup 'tr a text{}'); do break; done
+  f=$(curl -s https://downloads.openwrt.org/"$r"/targets/"$a"/"$c"/ | pup 'tr a text{}' | grep 'imagebuilder')
+  url=https://downloads.openwrt.org/"$r"/targets/"$a"/"$c"/"$f"
 fi
 [[ -f "$f" ]] || (wget "$url" || exit $?)
-d="${f%.tar.xz}"
-[[ -d "$d" ]] || tar -J -x -f "$f"
+d="${f%.tar.*}"
+[[ -d "$d" ]] || tar -axf "$f"
 cd "$d"
 if [[ -n $rep ]]; then
   sed -i 's/^option/#option/' repositories.conf
