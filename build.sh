@@ -1,4 +1,6 @@
 #!/bin/bash
+## host files after build or comment out to disable
+hst='yes'
 
 ## address of imagebuilder package or comment out to chose later
 url='https://downloads.openwrt.org/releases/23.05.5/targets/ramips/mt7621/openwrt-imagebuilder-23.05.5-ramips-mt7621.Linux-x86_64.tar.xz'
@@ -186,7 +188,7 @@ fi
 
 # copy packages
 mkdir -p packages
-cp -u ../*.ipk packages/ 
+cp -uf ../*.ipk packages/ 
 
 # build images
 if [[ -z $mod ]]; then
@@ -203,10 +205,13 @@ rm -rf bin/targets/"$a"/"$c"/*
 make image PROFILE="$mod" PACKAGES="$opk" FILES="files" || exit $?
 
 # host new files
-[[ $(pgrep -x python3) ]] && kill $(pgrep -x python3)
-cd bin/targets/"$a"/"$c"
-nohup python3 -m http.server &>/dev/null &
-echo
-echo "Files can be downloaded from http://$(hostname -I | awk '{print $1}'):8000"
-echo
+cp -uf bin/targets/"$a"/"$c"/* ../
+if [[ $hst == "yes" ]]; then
+  [[ $(pgrep -x python3) ]] && kill $(pgrep -x python3)
+  cd bin/targets/"$a"/"$c"
+  nohup python3 -m http.server &>/dev/null &
+  echo
+  echo "Files can be downloaded from http://$(hostname -I | awk '{print $1}'):8000"
+  echo
+fi
 exit 0
