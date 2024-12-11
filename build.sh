@@ -1,4 +1,5 @@
 #!/bin/bash
+
 ## host files after build or comment out to disable
 hst='yes'
 
