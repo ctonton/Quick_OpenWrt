@@ -49,7 +49,7 @@ wac='echo -e "AT+CFUN=1,1" >/dev/ttyUSB2'
 ## schedule tasks or comment out the next line to disable
 crn='yes'
 tasks() { cat <<EOT
-"59 7 * * 1 sleep 70 && touch /etc/banner && reboot"
+59 7 * * 1 sleep 70 && touch /etc/banner && reboot
 EOT
 }
 
@@ -57,7 +57,7 @@ EOT
 deflist() { cat <<EOT
 uci set system.@system[0].hostname=''
 
-uci set network.lan.ipaddr=''
+uci set network.lan.ipaddr='10.1.1.1'
 uci add_list network.lan.dns='208.67.222.123'
 uci add_list network.lan.dns='208.67.220.123'
 uci set network.lan.delegate='0'
@@ -144,7 +144,7 @@ else
   f=$(curl -s https://downloads.openwrt.org/releases/"$v"/targets/"$a"/"$c"/ | pup 'tr a text{}' | grep 'imagebuilder')
   url=https://downloads.openwrt.org/releases/"$v"/targets/"$a"/"$c"/"$f"
 fi
-[[ ! -f "$f" ]] && (wget "$url" || exit $?)
+[[ -f "$f" ]] || (wget "$url" || exit $?)
 d="${f%.tar.xz}"
 [[ -d "$d" ]] || tar -J -x -f "$f"
 cd "$d"
@@ -203,7 +203,7 @@ rm -rf bin/targets/"$a"/"$c"/*
 make image PROFILE="$mod" PACKAGES="$opk" FILES="files" || exit $?
 
 # host new files
-pgrep -x python3 >/dev/null && kill $(pgrep -x python3)
+[[ $(pgrep -x python3) ]] && kill $(pgrep -x python3)
 cd bin/targets/"$a"/"$c"
 nohup python3 -m http.server &>/dev/null &
 echo
