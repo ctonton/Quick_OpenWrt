@@ -60,7 +60,7 @@ if [[ -n $url ]]; then
 else
   echo
   PS3="Select openwrt version: "
-  select v in snapshots $(curl -s https://downloads.openwrt.org/releases/ | pup 'tr td a text{}' | grep '^[0-9]'); do break; done
+  select v in $(curl -s https://downloads.openwrt.org/releases/ | pup 'tr td a text{}' | grep '^[0-9]') snapshots; do break; done
   [[ $v == "snapshots" ]] && r="$v" || r="releases/$v"
   echo
   PS3="Select arch target: "
