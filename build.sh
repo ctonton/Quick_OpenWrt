@@ -27,8 +27,15 @@ nano'
 ## set TTL for celular data or comment out to diable
 #ttl='65'
 
-## watchcat command to reboot the cellular modem or comment out to diable
-#wac='echo -e "AT+CFUN=1,1" >/dev/ttyUSB2'
+## watchcat commands to reboot the cellular modem or comment out the next line to diable
+wac='yes'
+rstart() { cat <<EOT
+ifdown mobile
+echo -e "AT+CFUN=1,1" >/dev/ttyUSB2
+sleep 10
+ifup mobile
+EOT
+}
 
 ## schedule tasks or comment out the next line to disable
 #crn='yes'
@@ -97,13 +104,11 @@ if [[ -n $ttl ]]; then
   echo "ip ttl set $ttl" >files/usr/share/nftables.d/chain-pre/mangle_postrouting/01-set-ttl.nft
   echo "ip6 hoplimit set $ttl" >>files/usr/share/nftables.d/chain-pre/mangle_postrouting/01-set-ttl.nft
 fi
-if [[ -n $wac ]]; then
+if [[ $wac == "yes" ]]; then
   mkdir -p files/usr/share/watchcat
-  cat >files/usr/share/watchcat/restart.sh <<EOT
-#!/bin/sh
-$wac
-exit 0
-EOT
+  echo "#!/bin/sh" >files/usr/share/watchcat/restart.sh
+  rstart >>files/usr/share/watchcat/restart.sh
+  echo "exit 0" >>files/usr/share/watchcat/restart.sh
   chmod +x files/usr/share/watchcat/restart.sh
 fi
 if [[ $crn == "yes" ]]; then
