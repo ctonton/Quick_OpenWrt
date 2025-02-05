@@ -52,8 +52,8 @@ ttl='65'
 wac='yes'
 rstart() { cat <<'EOT'
 #!/bin/sh
-usb="$(ls /sys/bus/usb/drivers/qmi_wwan | grep '^[1-9]' | head -n1 | cut -d: -f1)"
 ping -c1 8.8.8.8 &>/dev/null && exit 0
+usb="$(ls /sys/bus/usb/drivers/qmi_wwan | grep '^[1-9]' | head -n1 | cut -d: -f1)"
 echo "$usb" >/sys/bus/usb/drivers/usb/unbind
 sleep 2
 echo "$usb" >/sys/bus/usb/drivers/usb/bind
