@@ -53,7 +53,6 @@ wac='yes'
 rstart() { cat <<'EOT'
 #!/bin/sh
 usb=$(ls /sys/bus/usb/drivers/qmi_wwan | grep '^[1-9]' | head -n1 | cut -d: -f1)
-ping -c1 1.1.1.1 &>/dev/null && exit 0
 ping -c1 8.8.8.8 &>/dev/null && exit 0
 echo "$usb" >/sys/bus/usb/drivers/usb/unbind
 sleep 2
@@ -94,6 +93,14 @@ uci set network.mobile.apn='fast.t-mobile.com'
 uci set network.mobile.auth='none'
 uci set network.mobile.pdptype='ipv4v6'
 uci add_list firewall.@zone[1].network='mobile'
+uci set watchcat.@watchcat[0].period='5m'
+uci set watchcat.@watchcat[0].mode='run_script'
+uci set watchcat.@watchcat[0].pinghosts='1.1.1.1'
+uci set watchcat.@watchcat[0].script='/usr/share/watchcat/restart.sh'
+uci set watchcat.@watchcat[0].addressfamily='ipv4'
+uci set watchcat.@watchcat[0].pingperiod='1m'
+uci set watchcat.@watchcat[0].pingsize='standard'
+uci set watchcat.@watchcat[0].interface='wwan0'
 EOT
 }
 
