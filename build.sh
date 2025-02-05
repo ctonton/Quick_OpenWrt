@@ -162,7 +162,7 @@ if [[ -n $ttl ]]; then
 fi
 if [[ $wac == "yes" ]]; then
   mkdir -p files/usr/share/watchcat
-  rstart >>files/usr/share/watchcat/restart.sh
+  rstart >files/usr/share/watchcat/restart.sh
   chmod +x files/usr/share/watchcat/restart.sh
 fi
 if [[ $crn == "yes" ]]; then
