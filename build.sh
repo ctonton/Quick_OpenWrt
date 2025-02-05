@@ -60,12 +60,12 @@ echo '1-2' >/sys/bus/usb/drivers/usb/bind
 sleep 90
 ping -c1 1.1.1.1 &>/dev/null && exit 0
 ping -c1 8.8.8.8 &>/dev/null && exit 0
-[ ! -f /usr/share/watchcat/log ] && echo "0" >/usr/share/watchcat/log
-if [ $(date +%s) -lt $(( $(cat /usr/share/watchcat/log) + 600 )) ]; then
+[ ! -f /usr/share/watchcat/time ] && echo "0" >/usr/share/watchcat/time
+if [ $(date +%s) -lt $(( $(cat /usr/share/watchcat/time) + 600 )) ]; then
   service watchcat stop
   exit 0
 else
-  date +%s >/usr/share/watchcat/log 
+  date +%s >/usr/share/watchcat/time
   reboot
 fi
 EOT
