@@ -66,7 +66,7 @@ if [[ $(date +%s) -lt $(( $(cat /usr/share/watchcat/log) + 600 )) ]]; then
   exit 0
 else
   date +%s >/usr/share/watchcat/log 
-  /sbin/reboot
+  reboot
 fi
 EOT
 }
