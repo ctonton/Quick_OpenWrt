@@ -28,7 +28,7 @@ nano'
 #ttl='65'
 
 ## watchcat commands to reboot the cellular modem or comment out the next line to diable
-wac='yes'
+#wac='yes'
 rstart() { cat <<EOT
 ifdown mobile
 echo -e "AT+CFUN=1,1" >/dev/ttyUSB2
@@ -55,7 +55,7 @@ EOT
 }
 
 # check for and install dependencies
-dep="build-essential curl file gawk gettext git libncurses-dev libssl-dev pup python3 python3-distutils rsync unzip wget xsltproc zlib1g-dev"
+dep="build-essential curl file gawk gettext git libncurses-dev libssl-dev pup python3 python3-distutils rsync unzip wget xsltproc zlib1g-dev zstd"
 for p in $dep; do dpkg -l "$p" 2>/dev/null | grep -q '^ii' || i=1; done
 [[ $i -eq 1 ]] && (sudo apt update; sudo apt install -y $dep || exit $?)
 
