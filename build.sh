@@ -74,8 +74,8 @@ EOT
 ## schedule tasks or comment out the next line to disable
 crn='yes'
 tasks() { cat <<EOT
-59 7 * * 1 sleep 70 && touch /etc/banner && reboot
-0 */6 * * * [ $(service watchcat status) = "inactive" ] && service watchcat start
+59 7 * * 1 /bin/sleep 70 && /bin/touch /etc/banner && /sbin/reboot
+0 */6 * * * /sbin/service watchcat running || /sbin/service watchcat start
 EOT
 }
 
