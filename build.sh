@@ -4,7 +4,7 @@
 ## Place configuration files with their correct directory structure inside of a directory named "files"
 
 ## host files after build or comment out to disable
-#hst='yes'
+hst='yes'
 
 ## address of imagebuilder package or comment out to chose later
 url='https://downloads.openwrt.org/releases/23.05.5/targets/ramips/mt7621/openwrt-imagebuilder-23.05.5-ramips-mt7621.Linux-x86_64.tar.xz'
