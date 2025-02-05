@@ -50,13 +50,14 @@ ttl='65'
 
 ## watchcat script to restart the cellular modem or comment out the next line to disable
 wac='yes'
-rstart() { cat <<EOT
+rstart() { cat <<'EOT'
 #!/bin/sh
+usb=$(ls /sys/bus/usb/drivers/qmi_wwan | grep '^[1-9]' | head -n1 | cut -d: -f1)
 ping -c1 1.1.1.1 &>/dev/null && exit 0
 ping -c1 8.8.8.8 &>/dev/null && exit 0
-echo '1-2' >/sys/bus/usb/drivers/usb/unbind
+echo "$usb" >/sys/bus/usb/drivers/usb/unbind
 sleep 2
-echo '1-2' >/sys/bus/usb/drivers/usb/bind
+echo "$usb" >/sys/bus/usb/drivers/usb/bind
 sleep 90
 ping -c1 1.1.1.1 &>/dev/null && exit 0
 ping -c1 8.8.8.8 &>/dev/null && exit 0
