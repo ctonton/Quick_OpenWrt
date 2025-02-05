@@ -82,11 +82,18 @@ EOT
 
 ## set uci defaults
 deflist() { cat <<EOT
-uci set system.@system[0].hostname=''
+uci set system.@system[0].hostname='we1326'
 uci set wireless.radio0.disabled='0'
 uci set wireless.radio0.country='US'
 uci set wireless.radio1.disabled='0'
 uci set wireless.radio1.country='US'
+uci set network.mobile='interface'
+uci set network.mobile.proto='qmi'
+uci set network.mobile.device='/dev/cdc-wdm0'
+uci set network.mobile.apn='fast.t-mobile.com'
+uci set network.mobile.auth='none'
+uci set network.mobile.pdptype='ipv4v6'
+uci add_list firewall.@zone[1].network='mobile'
 EOT
 }
 
@@ -124,16 +131,22 @@ if [[ -n $rep ]]; then
 fi
 rm -rf bin files
 
+# copy packages and files
+mkdir -p packages files
+[[ -d ../files ]] && cp -r ../files/* files/
+[[ -d ../packages ]] && cp -r ../packages/*.ipk packages/
+shopt -s globstar dotglob
+chmod -f 600 files/etc/dropbear/*
+for f in files/**/*.sh; do
+  chmod +x $f
+done
+
 # write defaults
 mkdir -p files/etc/uci-defaults
 deflist >files/etc/uci-defaults/90-defaults
 echo "uci commit" >>files/etc/uci-defaults/90-defaults
 [[ -n $pas ]] && cat >files/etc/uci-defaults/99-password <<EOT
 echo -e "$pas\n$pas" | passwd root
-EOT
-[[ -n $key ]] && cat >>files/etc/uci-defaults/99-password <<EOT
-echo $key >/etc/dropbear/authorized_keys
-chmod 600 /etc/dropbear/authorized_keys
 EOT
 if [[ -n $ttl ]]; then
   mkdir -p files/usr/share/nftables.d/chain-pre/mangle_postrouting
@@ -149,10 +162,6 @@ if [[ $crn == "yes" ]]; then
   mkdir -p files/etc/crontabs
   tasks >files/etc/crontabs/root
 fi
-
-# copy packages
-mkdir -p packages
-cp -uf ../*.ipk packages/ 2>/dev/null
 
 # build images
 if [[ -z $mod ]]; then
