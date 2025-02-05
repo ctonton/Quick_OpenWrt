@@ -118,7 +118,7 @@ fi
 
 # copy packages
 mkdir -p packages
-cp -uf ../*.ipk packages/ 
+cp -uf ../*.ipk packages/ 2>/dev/null
 
 # build images
 if [[ -z $mod ]]; then
