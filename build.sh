@@ -1,46 +1,81 @@
 #!/bin/bash
 
+## place any additional packages in a directory named "packages"
+## Place configuration files with their correct directory structure inside of a directory named "files"
+
 ## host files after build or comment out to disable
 #hst='yes'
 
 ## address of imagebuilder package or comment out to chose later
-#url='https://downloads.openwrt.org/releases/23.05.5/targets/ramips/mt7621/openwrt-imagebuilder-23.05.5-ramips-mt7621.Linux-x86_64.tar.xz'
+url='https://downloads.openwrt.org/releases/23.05.5/targets/ramips/mt7621/openwrt-imagebuilder-23.05.5-ramips-mt7621.Linux-x86_64.tar.xz'
 
 ## model of router to build for or comment out to chose later
-#mod='zbtlink_zbt-we1326'
+mod='zbtlink_zbt-we1326'
 
-## set a default password and dropbear key or comment out to leave blank
+## set a default password or comment out to leave blank
 pas='password'
-#key='ssh-rsa..........................'
 
 ## custom repository to pull packages from or comment out to disable
-#rep='src/gz IceG_repo https://github.com/4IceG/Modem-extras/raw/main/myrepo'
-
-## place any additional packages in the same directory as this build script
+rep='src/gz IceG_repo https://github.com/4IceG/Modem-extras/raw/main/myrepo'
 
 ## packages to install
 opk='\
+block-mount \
+kmod-fs-exfat \
+kmod-fs-ext4 \
+kmod-fs-vfat \
+kmod-fs-xfs \
+kmod-usb2 \
+kmod-usb3 \
+kmod-usb-net-qmi-wwan \
+kmod-usb-serial-option \
+kmod-usb-serial-qualcomm \
+kmod-usb-storage \
 luci \
+luci-app-3ginfo-lite \
+luci-app-ksmbd \
+luci-app-modemband \
 luci-app-opkg \
-nano'
+luci-app-sms-tool-js \
+luci-app-watchcat \
+luci-proto-qmi \
+luci-proto-wireguard \
+nano \
+ntfs-3g \
+socat \
+usbutils'
 
-## set TTL for celular data or comment out to diable
-#ttl='65'
+## set TTL for celular data or comment out to disable
+ttl='65'
 
-## watchcat commands to reboot the cellular modem or comment out the next line to diable
-#wac='yes'
+## watchcat script to restart the cellular modem or comment out the next line to disable
+wac='yes'
 rstart() { cat <<EOT
-ifdown mobile
-echo -e "AT+CFUN=1,1" >/dev/ttyUSB2
-sleep 10
-ifup mobile
+#!/bin/sh
+ping -c1 1.1.1.1 &>/dev/null && exit 0
+ping -c1 8.8.8.8 &>/dev/null && exit 0
+echo '1-2' >/sys/bus/usb/drivers/usb/unbind
+sleep 2
+echo '1-2' >/sys/bus/usb/drivers/usb/bind
+sleep 90
+ping -c1 1.1.1.1 &>/dev/null && exit 0
+ping -c1 8.8.8.8 &>/dev/null && exit 0
+[[ ! -f /usr/share/watchcat/log ]] && echo "0" >/usr/share/watchcat/log
+if [[ $(date +%s) -lt $(( $(cat /usr/share/watchcat/log) + 600 )) ]]; then
+  service watchcat stop
+  exit 0
+else
+  date +%s >/usr/share/watchcat/log 
+  /sbin/reboot
+fi
 EOT
 }
 
 ## schedule tasks or comment out the next line to disable
-#crn='yes'
+crn='yes'
 tasks() { cat <<EOT
 59 7 * * 1 sleep 70 && touch /etc/banner && reboot
+0 */6 * * * [ $(service watchcat status) = "inactive" ] && service watchcat start
 EOT
 }
 
@@ -106,9 +141,7 @@ if [[ -n $ttl ]]; then
 fi
 if [[ $wac == "yes" ]]; then
   mkdir -p files/usr/share/watchcat
-  echo "#!/bin/sh" >files/usr/share/watchcat/restart.sh
   rstart >>files/usr/share/watchcat/restart.sh
-  echo "exit 0" >>files/usr/share/watchcat/restart.sh
   chmod +x files/usr/share/watchcat/restart.sh
 fi
 if [[ $crn == "yes" ]]; then
