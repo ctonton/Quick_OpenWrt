@@ -9,7 +9,7 @@ To make changes in the configuration of the new build, create a file named "uci"
 
 Extra packages not found in the openwrt repository can be placed inside a directory named "packages" with the "build.sh" script or add a URL for an external repository in the "build.sh" script itself by editing the section labeled "## custom repository to pull packages from or comment out to disable".
 
-Any extra files, scripts, configurations, etc. that you want included in the new build can be placed inside a directory named "files" with the "build.sh" script.  Those files need to be structured within directories exactly like where they are to be added to system.
+Any extra files, scripts, configurations, etc. that you want included in the new build can be placed inside a directory named "files" with the "build.sh" script.  Those files need to be structured within directories exactly like where they are to be added to the new system.
 
 
 Download
