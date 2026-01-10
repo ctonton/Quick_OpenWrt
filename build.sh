@@ -84,7 +84,7 @@ rm -rf "$d/bin" "$d/files" "$d/packages"
 mkdir -p "$d/files/etc/uci-defaults"
 if ! echo $p | grep -q ':<NULL>:' ; then
   echo -e "#!/bin/sh\np='$p'" >"$d/files/etc/uci-defaults/10-pas"
-  echo 'sed -i "s~^root.*~${p//~//\~}~" /etc/shadow' >>"$d/files/etc/uci-defaults/10-pas"
+  echo 'sed -i "s~^root.*~$p~" /etc/shadow' >>"$d/files/etc/uci-defaults/10-pas"
   echo 'exit 0' >>"$d/files/etc/uci-defaults/10-pas"
   chmod +x "$d/files/etc/uci-defaults/10-pas"
 fi
