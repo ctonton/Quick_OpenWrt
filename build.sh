@@ -1,198 +1,111 @@
 #!/bin/bash
 
-## place any additional packages in a directory named "packages"
-## Place configuration files with their correct directory structure inside of a directory named "files"
+## version of openwrt to build or leave blank to choose
+VERS='24.10.5'
 
-## host files after build or comment out to disable
-hst='yes'
+## architecture of device or leave blank out to choose
+ARCH='ramips'
 
-## address of imagebuilder package or comment out to chose later
-url='https://downloads.openwrt.org/releases/23.05.5/targets/ramips/mt7621/openwrt-imagebuilder-23.05.5-ramips-mt7621.Linux-x86_64.tar.xz'
+## processor in device or leave blank to choose
+CHIP='mt76x8'
 
-## model of router to build for or comment out to chose later
-mod='zbtlink_zbt-we1326'
-
-## set a default password or comment out to leave blank
-pas='password'
+## router model or leave blank to choose
+MODL='tplink_tl-wr902ac-v3'
 
 ## custom repository to pull packages from or comment out to disable
-rep='src/gz IceG_repo https://github.com/4IceG/Modem-extras/raw/main/myrepo'
-
-## packages to install
-opk='\
-block-mount \
-kmod-fs-exfat \
-kmod-fs-ext4 \
-kmod-fs-vfat \
-kmod-fs-xfs \
-kmod-usb2 \
-kmod-usb3 \
-kmod-usb-net-qmi-wwan \
-kmod-usb-serial-option \
-kmod-usb-serial-qualcomm \
-kmod-usb-storage \
-luci \
-luci-app-3ginfo-lite \
-luci-app-ksmbd \
-luci-app-modemband \
-luci-app-opkg \
-luci-app-sms-tool-js \
-luci-app-watchcat \
-luci-proto-qmi \
-luci-proto-wireguard \
-nano \
-ntfs-3g \
-socat \
-usbutils'
-
-## set TTL for celular data or comment out to disable
-ttl='65'
-
-## watchcat script to restart the cellular modem or comment out the next line to disable
-wac='yes'
-rstart() { cat <<'EOT'
-#!/bin/sh
-ping -c1 8.8.8.8 &>/dev/null && exit 0
-#echo -e 'AT+CFUN=1,1' >/dev/ttyUSB2
-usb="$(ls /sys/bus/usb/drivers/qmi_wwan | grep '^[1-9]' | cut -d: -f1)"
-echo "$usb" >/sys/bus/usb/drivers/usb/unbind
-sleep 2
-echo "$usb" >/sys/bus/usb/drivers/usb/bind
-sleep 90
-ping -c1 1.1.1.1 &>/dev/null && exit 0
-ping -c1 8.8.8.8 &>/dev/null && exit 0
-[ ! -f /usr/share/watchcat/time ] && echo "0" >/usr/share/watchcat/time
-if [ $(date +%s) -lt $(( $(cat /usr/share/watchcat/time) + 600 )) ]; then
-  service watchcat stop
-  exit 0
-else
-  date +%s >/usr/share/watchcat/time
-  reboot
-fi
-EOT
-}
-
-## schedule tasks or comment out the next line to disable
-crn='yes'
-tasks() { cat <<EOT
-59 7 * * 1 /bin/sleep 70 && /bin/touch /etc/banner && /sbin/reboot
-0 */6 * * * /sbin/service watchcat running || /sbin/service watchcat start
-EOT
-}
-
-## set uci defaults
-deflist() { cat <<EOT
-uci set system.@system[0].hostname='we1326'
-uci set wireless.radio0.disabled='0'
-uci set wireless.radio0.country='US'
-uci set wireless.radio1.disabled='0'
-uci set wireless.radio1.country='US'
-uci set network.mobile='interface'
-uci set network.mobile.proto='qmi'
-uci set network.mobile.device='/dev/cdc-wdm0'
-uci set network.mobile.apn='fast.t-mobile.com'
-uci set network.mobile.auth='none'
-uci set network.mobile.pdptype='ipv4v6'
-uci add_list firewall.@zone[1].network='mobile'
-uci set watchcat.@watchcat[0].period='5m'
-uci set watchcat.@watchcat[0].mode='run_script'
-uci set watchcat.@watchcat[0].pinghosts='1.1.1.1'
-uci set watchcat.@watchcat[0].script='/usr/share/watchcat/restart.sh'
-uci set watchcat.@watchcat[0].addressfamily='ipv4'
-uci set watchcat.@watchcat[0].pingperiod='1m'
-uci set watchcat.@watchcat[0].pingsize='standard'
-uci set watchcat.@watchcat[0].interface='wwan0'
-EOT
-}
+#rep='src/gz IceG_repo https://github.com/4IceG/Modem-extras/raw/main/myrepo'
 
 # check for and install dependencies
-dep="build-essential curl file gawk gettext git libncurses-dev libssl-dev pup python3-setuptools rsync unzip wget xsltproc zlib1g-dev zstd"
-for p in $dep; do dpkg -l "$p" 2>/dev/null | grep -q '^ii' || i=1; done
-[[ $i -eq 1 ]] && (sudo apt update; sudo apt install -y $dep || exit $?)
+depA=(curl zstd openssl build-essential file libncurses-dev zlib1g-dev gawk git gettext libssl-dev xsltproc rsync wget unzip python3 python3-setuptools)
+for dep in ${depA[@]} ; do dpkg -l "$dep" 2>/dev/null | grep -q '^ii' || i=1; done
+if [ "$i" = 1 ] ; then
+  sudo apt update && sudo apt -y install "${depA[@]}" || exit $?
+fi
+
+# set root password
+echo
+echo "Set the root password for openwrt."
+until h=$(openssl passwd -5) ; do echo ; done
+p="root:$h:$(($(date +%s) / 86400)):0:99999:7:::"
 
 # download and extract imagebuilder package
-if [[ -n $url ]]; then
-  a="$(echo $url | cut -d '/' -f7)"
-  c="$(echo $url | cut -d '/' -f8)"
-  f="${url##*/}"
+versA=($(curl -s "https://downloads.openwrt.org/releases/" | pup 'tr td a text{}' | grep '^[0-9]' && echo "snapshots"))
+if printf "%s\\n" ${versA[@]} | grep -q "$VERS" ; then
+  v="$VERS"
 else
   echo
   PS3="Select openwrt version: "
-  select v in $(curl -s https://downloads.openwrt.org/releases/ | pup 'tr td a text{}' | grep '^[0-9]') snapshots; do break; done
-  [[ $v == "snapshots" ]] && r="$v" || r="releases/$v"
-  echo
-  PS3="Select arch target: "
-  select a in $(curl -s https://downloads.openwrt.org/"$r"/targets/ | pup 'tr a text{}'); do break; done
-  echo
-  PS3="Select chip model: "
-  select c in $(curl -s https://downloads.openwrt.org/"$r"/targets/"$a"/ | pup 'tr a text{}'); do break; done
-  f=$(curl -s https://downloads.openwrt.org/"$r"/targets/"$a"/"$c"/ | pup 'tr a text{}' | grep 'imagebuilder')
-  url=https://downloads.openwrt.org/"$r"/targets/"$a"/"$c"/"$f"
+  select v in ${versA[@]} ; do break ; done
+  sed -i "s/^VERS=.*/VERS=\'$v\'/" $0
 fi
-[[ -f "$f" ]] || (wget "$url" || exit $?)
+[ "$v" = "snapshots" ] && r="$v" || r="releases/$v"
+archA=($(curl -s "https://downloads.openwrt.org/$r/targets/" | pup 'tr a text{}'))
+if printf "%s\\n" ${archA[@]} | grep -q "$ARCH" ; then
+  a="$ARCH"
+else
+  echo
+  PS3="Select device architecture: "
+  select a in ${archA[@]} ; do break; done
+  sed -i "s/^ARCH=.*/ARCH=\'$a\'/" $0
+fi
+chipA=($(curl -s "https://downloads.openwrt.org/$r/targets/$a/" | pup 'tr a text{}'))
+if printf "%s\\n" ${chipA[@]} | grep -q "$CHIP" ; then
+  c="$CHIP"
+else
+  echo
+  PS3="Select processor model: "
+  select c in ${chipA[@]} ; do break; done
+  sed -i "s/^CHIP=.*/CHIP=\'$c\'/" $0
+fi
+f=$(curl -s "https://downloads.openwrt.org/$r/targets/$a/$c/" | pup 'tr a text{}' | grep 'imagebuilder')
+[ -f "$f" ] || wget "https://downloads.openwrt.org/$r/targets/$a/$c/$f" || exit $?
 d="${f%.tar.*}"
-[[ -d "$d" ]] || tar -axf "$f"
-cd "$d"
-if [[ -n $rep ]]; then
-  sed -i 's/^option/#option/' repositories.conf
-  [[ $(grep "$rep" repositories.conf) ]] || echo $rep >>repositories.conf
+[ -d "$d" ] || tar -axf "$f"
+
+# setup extra repositories
+if [ -n "$rep" ] ; then
+  sed -i 's/^option/#option/' "$d"/repositories.conf
+  grep -q "$rep" "$d/repositories.conf" || echo "$rep" >>"$d/repositories.conf"
 fi
-rm -rf bin files
 
 # copy packages and files
-mkdir -p packages files
-[[ -d ../files ]] && cp -r ../files/* files/
-[[ -d ../packages ]] && cp -r ../packages/*.ipk packages/
-shopt -s globstar dotglob
-chmod -f 600 files/etc/dropbear/*
-for f in files/**/*.sh; do
-  chmod +x $f
-done
-
-# write defaults
-mkdir -p files/etc/uci-defaults
-deflist >files/etc/uci-defaults/90-defaults
-echo "uci commit" >>files/etc/uci-defaults/90-defaults
-[[ -n $pas ]] && cat >files/etc/uci-defaults/99-password <<EOT
-echo -e "$pas\n$pas" | passwd root
-EOT
-if [[ -n $ttl ]]; then
-  mkdir -p files/usr/share/nftables.d/chain-pre/mangle_postrouting
-  echo "ip ttl set $ttl" >files/usr/share/nftables.d/chain-pre/mangle_postrouting/01-set-ttl.nft
-  echo "ip6 hoplimit set $ttl" >>files/usr/share/nftables.d/chain-pre/mangle_postrouting/01-set-ttl.nft
+mkdir -p bin
+rm -rf "$d/bin" "$d/files" "$d/packages"
+[ -d "packages" ] && cp -r packages "$d"/ || mkdir "$d/packages"
+[ -d "files" ] && cp -r files "$d"/ || mkdir "$d/files"
+mkdir -p "$d/files/etc/uci-defaults"
+if ! echo $p | grep -q ':<NULL>:' ; then
+  echo -e "#!/bin/sh\np='$p'" >"$d/files/etc/uci-defaults/10-pas"
+  echo 'sed -i "s/^root.*/$p/" /etc/shadow' >>"$d/files/etc/uci-defaults/10-pas"
+  echo 'exit 0' >>"$d/files/etc/uci-defaults/10-pas"
+  chmod +x "$d/files/etc/uci-defaults/10-pas"
 fi
-if [[ $wac == "yes" ]]; then
-  mkdir -p files/usr/share/watchcat
-  rstart >files/usr/share/watchcat/restart.sh
-  chmod +x files/usr/share/watchcat/restart.sh
-fi
-if [[ $crn == "yes" ]]; then
-  mkdir -p files/etc/crontabs
-  tasks >files/etc/crontabs/root
+if [ -f "uci" ] ; then
+  echo '#!/bin/sh' >"$d/files/etc/uci-defaults/20-uci"
+  cat uci >>"$d/files/etc/uci-defaults/20-uci"
+  echo -e "uci commit\nexit 0" >>"$d/files/etc/uci-defaults/20-uci"
+  chmod +x "$d/files/etc/uci-defaults/20-uci"
 fi
 
 # build images
-if [[ -z $mod ]]; then
-  [[ -f .profiles.mk ]] || make info &>/dev/null
+cd "$d"
+[ -f ".profiles.mk" ] || make info &>/dev/null
+modlA=($(grep 'PROFILE_NAMES = ' .profiles.mk | sed 's/PROFILE_NAMES = //;s/DEVICE_//g'))
+if printf "%s\\n" ${modlA[@]} | grep "$MODL" ; then
+  m="$MODL"
+else
   echo
   PS3="Select router make: "
-  select b in $(cat .profiles.mk | grep 'DEVICE_.*NAME' | cut -d '_' -f2 | sort -u); do break; done
+  select b in $(printf "%s\\n" ${modlA[@]} | cut -d '_' -f 1 | uniq) ; do break; done
   echo
   PS3="Select router model: "
-  select r in $(cat .profiles.mk | grep "DEVICE_$b.*NAME" | cut -d '_' -f3); do break; done
-  mod="$b"_"$r"
+  select r in $(printf "%s\\n" ${modlA[@]} | cut -d '_' -f 2 | sort) ; do break; done
+  m="$b"_"$r"
+  sed -i "s/^MODL=.*/MODL=\'$m\'/" $0
 fi
-rm -rf bin/targets/"$a"/"$c"/*
-make image PROFILE="$mod" PACKAGES="$opk" FILES="files" || exit $?
+make image PROFILE="$m" PACKAGES="$(cat ../opkg 2>/dev/null | xargs)" FILES="files" || exit $?
 
-# host new files
-cp -uf bin/targets/"$a"/"$c"/* ../
-if [[ $hst == "yes" ]]; then
-  [[ $(pgrep -x python3) ]] && kill $(pgrep -x python3)
-  cd bin/targets/"$a"/"$c"
-  nohup python3 -m http.server &>/dev/null &
-  echo
-  echo "Files can be downloaded from http://$(hostname -I | awk '{print $1}'):8000"
-  echo
-fi
+# copy build
+cp -f "bin/targets/$a/$c"/* ../bin/
+
 exit 0
