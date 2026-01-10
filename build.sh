@@ -16,6 +16,7 @@ MODL=''
 #rep='src/gz IceG_repo https://github.com/4IceG/Modem-extras/raw/main/myrepo'
 
 # check for and install dependencies
+[ "$(id -u)" = 0 ] && echo "This script can not be executed as \"root\" user." && exit 1
 depA=(curl zstd openssl build-essential file libncurses-dev zlib1g-dev gawk git gettext libssl-dev xsltproc rsync wget unzip python3 python3-setuptools)
 for dep in ${depA[@]} ; do dpkg -l "$dep" 2>/dev/null | grep -q '^ii' || i=1; done
 if [ "$i" = 1 ] ; then
