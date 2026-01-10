@@ -1,16 +1,16 @@
 #!/bin/bash
 
 ## version of openwrt to build or leave blank to choose
-VERS='24.10.5'
+VERS=''
 
 ## architecture of device or leave blank out to choose
-ARCH='ramips'
+ARCH=''
 
 ## processor in device or leave blank to choose
-CHIP='mt76x8'
+CHIP=''
 
 ## router model or leave blank to choose
-MODL='tplink_tl-wr902ac-v3'
+MODL=''
 
 ## custom repository to pull packages from or comment out to disable
 #rep='src/gz IceG_repo https://github.com/4IceG/Modem-extras/raw/main/myrepo'
