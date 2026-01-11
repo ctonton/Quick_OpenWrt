@@ -40,12 +40,14 @@ else
   select c in ${chipA[@]} ; do break; done
 fi
 f=$(curl -s "https://downloads.openwrt.org/$r/targets/$a/$c/" | pup 'tr a text{}' | grep 'imagebuilder')
+[ -z "$f" ] && echo -e "Host \"https://downloads.openwrt.org/$r/targets/$a/$c/\" is unreachable." && exit 127
 
 # download and extract imagebuilder package
-[ -z "$f" ] && echo -e "Host \"https://downloads.openwrt.org/$r/targets/$a/$c/\" is unreachable." && exit 127
-[ -f "$f" ] || wget "https://downloads.openwrt.org/$r/targets/$a/$c/$f" || exit $?
 d="${f%.tar.*}"
-[ -d "$d" ] || tar -axf "$f"
+if [ ! -d "$d" ] ; then
+  [ -f "$f" ] || wget "https://downloads.openwrt.org/$r/targets/$a/$c/$f" || exit $?
+  tar -axf "$f"
+fi
 
 # set root password
 echo
