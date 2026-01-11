@@ -110,7 +110,7 @@ else
   PS3="Select router model: "
   select r in $(printf "%s\\n" ${modlA[@]} | cut -d '_' -f 2 | sort) ; do break; done
   m="$b"_"$r"
-  sed -i "s/^MODL=.*/MODL='$m'/" ../$0
+  sed -i "s/^MODL=.*/MODL='$m'/" ../${0##*/}
 fi
 make image PROFILE="$m" PACKAGES="${opkgA[*]}" FILES="files" || exit $?
 
