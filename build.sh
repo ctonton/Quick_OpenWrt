@@ -98,7 +98,7 @@ else
   select b in $(printf "%s\\n" ${modlA[@]} | cut -d '_' -f 1 | uniq) ; do break; done
   echo
   PS3="Select router model: "
-  select r in $(printf "%s\\n" ${modlA[@]} | cut -d '_' -f 2 | sort) ; do break; done
+  select r in $(printf "%s\\n" ${modlA[@]} | grep "$b" | cut -d '_' -f 2 | sort) ; do break; done
   m="$b"_"$r"
 fi
 make image PROFILE="$m" PACKAGES="${opkgA[*]}" FILES="files" || exit $?
