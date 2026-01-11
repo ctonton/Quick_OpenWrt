@@ -30,6 +30,7 @@ until h=$(openssl passwd -5) ; do echo ; done
 p="root:$h:$(($(date +%s) / 86400)):0:99999:7:::"
 
 # download and extract imagebuilder package
+[ -f "vars" ] && source ./vars
 versA=($(curl -s "https://downloads.openwrt.org/releases/" | pup 'tr td a text{}' | grep '^[0-9]'))
 [ -z "${versA[*]}" ] && echo -e "Host \"https://downloads.openwrt.org/releases/\" is unreachable." && exit 127
 versA+=("snapshots")
