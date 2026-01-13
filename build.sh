@@ -66,7 +66,11 @@ EOF
 # select imagebuilder package and profile
 if [ -f "vars" ] ; then 
   source ./vars
-  [ "$VERS" = "snapshots" ] && d="openwrt-imagebuilder-$ARCH-$CHIP.Linux-x86_64" || d="openwrt-imagebuilder-$VERS-$ARCH-$CHIP.Linux-x86_64"
+  v="$VERS"
+  a="$ARCH"
+  c="$CHIP"
+  m="$MODL"
+  [ "$v" = "snapshots" ] && d="openwrt-imagebuilder-$a-$c.Linux-x86_64" || d="openwrt-imagebuilder-$v-$a-$c.Linux-x86_64"
   [ -d "$d" ] || getVARS
 else
   getVARS
