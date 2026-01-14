@@ -100,7 +100,7 @@ rm -rf "$d/bin" "$d/files" "$d/packages"
 if [ -s "repos" ] ; then
   sed -i 's/^option/#option/' "$d/repositories.conf"
   while IFS= read -r line; do
-    grep -q "$line" "$d/repositories.conf" || echo "line" >>"$d/repositories.conf"
+    grep -q "$line" "$d/repositories.conf" || echo "$line" >>"$d/repositories.conf"
   done <repos
 fi
 
